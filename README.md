@@ -6,13 +6,13 @@ This was developed in March-June 2018.
 
 Technologies used: javascript and d3 library.
 
-## project1
+## assignment1
 Contains a dynamic and interactive bar chart for NYC Green Markets, as well as a interactive plot for  winning times (in minutes) for Boston Marathon event, separately for men and women.
 
-## project2
+## assignment2
 Contains dynamic and interactive plots for murders in all of NYC over time.
 
-## project3
+## assignment3
 Contains a data story for Incidents Handled by Fire Department of New York City. This can be visualize here: https://a21lex.github.io/ (at the moment).
 
 This project was made in a 3 group collaboration.
