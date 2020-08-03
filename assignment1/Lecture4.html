@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Boston Marathon</title>
+		<script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+		<style type="text/css">
+			.line{
+				fill: none;
+				stroke: black;
+				}
+			.menLine{
+				fill: none;
+				stroke: black;
+				}
+			.womenLine{
+				fill: none;
+				stroke: black;
+				}
+			.trendline{
+				stroke-dasharray: 5;
+			}
+			#point{font-size: 15px
+				}
+			#point:hover{
+				fill:darkgreen;
+				cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
+		<p id="men">Click on this text to update the chart with data values for men</p>
+		<p id="women">Click on this text to update the chart with data values for women</p>
+		<p id="all">Click on this text to update the chart with data values for all participants</p>
+		<p></p>
+		<p id = "lines">Click on this text to <b>toggle</b> on/off the lines connecting the points</p>
+
+		<script type="text/javascript">
+		
+			//Width and height
+			var w = 600;
+			var h = 350;
+			var padding = 40;
+			
+			// Load data for men and women from corresponding csvs
+			
+			var menDataset = [];
+			var womenDataset = [];
+			var commonDataset = []; // for both to draw in the beginning
+			var parseYear = d3.timeParse("%Y"); //convert strings to years in Date format
+			var formatYear = d3.timeFormat("%Y"); // and vice versa
+			
+			// time in format (string) 2:55:10 - convert to minutes only
+			var convertToMinutes = function(stringTime){
+				var minuteString = ""; 
+				var totalMins = 0;  
+				var minutesReached = false;
+				for (var i = 0; i < stringTime.length; i++){
+					minuteString = minuteString + stringTime.charAt(i); 
+					if(stringTime.charAt(i) === ':' && (!minutesReached)){ 
+						minutesReached = true;
+						var numHours = parseInt(minuteString); 
+						var numMinutes = numHours * 60; 
+						totalMins += numMinutes;
+						minuteString = ""; 
+						continue;
+					}
+					else if (stringTime.charAt(i) === ':' && minutesReached){
+						var numMinutes = parseInt(minuteString);
+						totalMins += numMinutes;
+						break;
+					}
+				}
+				return totalMins;
+			}
+			//For tooltips
+			function minToHour(numMinutes){
+				var numHours = Math.floor(numMinutes/60);
+				var nh = numHours.toString() + " hours";
+				var remMins = numMinutes - numHours*60;
+				var rm = remMins.toString() + " minutes";
+				return nh + " " + rm;
+			}
+
+			var yearTime = function(row){
+				return{
+					Year: parseYear(row.Year),
+					Time: convertToMinutes(row.Time)
+				}
+			
+			}
+			// question mark here to prevent file caching at update
+			d3.csv("men.csv?", yearTime, function(data){
+				d3.csv("women.csv?", yearTime, function(data){
+					console.log(data);
+					data.map(function(d){
+							womenDataset.push([d.Year, d.Time, "f"]);
+					})
+					addUpdatePlot(womenDataset, "#women"); // add updating plot to women to a paragraph
+					commonDataset = menDataset.concat(womenDataset);
+					generatePlot(commonDataset); // generate initial plot with both men and women data
+					addUpdatePlot(commonDataset, "#all"); // add updating plot to both genders to a paragraph
+				})
+				console.log(data);
+				
+				data.map(function(d){
+					menDataset.push([d.Year, d.Time, "m"]);
+				})
+				console.log(womenDataset);
+				addUpdatePlot(menDataset, "#men"); // add updating plot to men to a paragraph
+			})
+			
+
+			
+			var xScale;
+			var yScale;
+			var svg;
+			var xAxis;
+			var yAxis;
+			var line; // for connecting points (path)
+
+			//The values below are for straight-line fit. Calculated outside d3.
+			//Equation of form: y = mx+b
+			var mMEN = -0.28957458338978;
+			var bMEN =708.70572415662;
+			var mWOMEN = -0.9351165327881;
+			var bWOMEN = 2018.0589169718; 
+						
+			var getY = function(x, gender){
+				 if(gender==="m"){
+			 	 return mMEN*x + bMEN;
+				}
+				else{
+			 	 return mWOMEN*x + bWOMEN;	
+				}
+			}	
+
+			var generatePlot = function(desiredDataset) {
+			
+				//build a plot using desired dataset(will use common as default)
+				var dataset = desiredDataset;
+				
+				//Create scale functions
+				xScale = d3.scaleTime()
+									.domain([
+									d3.min(dataset, function(d){ return d[0]; }), d3.max(dataset, function(d){ return d[0]; })
+									])
+									.range([padding, w - padding * 2]);					 
+
+				yScale = d3.scaleLinear()
+									.domain([d3.min(dataset, function(d){ return d[1]; }), d3.max(dataset, function(d) { return d[1]; })])
+									.range([h - padding, padding]);
+
+				//Define X axis
+				xAxis = d3.axisBottom()
+								.scale(xScale)
+								.ticks(5);
+
+				//Define Y axis
+				yAxis = d3.axisLeft()
+								.scale(yScale)
+								.ticks(5);
+
+				//Create SVG element
+				svg = d3.select("body")
+							.append("svg")
+							.attr("width", w)
+							.attr("height", h);
+				//Append clipping path (avoid points going outside axes)
+				svg.append("clipPath")
+					.attr("id","chart-area")
+					.append("rect")
+					.attr("x",padding)
+					.attr("y",padding)
+					.attr("width",w - padding * 3)
+					.attr("height",h-padding*2);
+				
+				//Create points
+				svg.append("g")
+					.attr("id","points")
+					.attr("clip-path","url(#chart-area)")
+					.selectAll("point")
+					.data(dataset)
+					.enter()
+					.append("text")
+					.text(function(d){
+						if (d[2]==="f"){
+							return "○";
+						}
+						else {
+							return "◇";
+						}
+					})
+					.attr("id","point")
+					.attr("x", function(d) {
+							return xScale(d[0]);
+					})
+					.attr("y", function(d) {
+							return yScale(d[1]);
+					})
+					.attr("fill", "black")
+					.on("mouseover", function(d) {
+					//Get this point's x/y values, then add the tooltip
+						var xPosition = parseFloat(d3.select(this).attr("x"));
+						var yPosition = parseFloat(d3.select(this).attr("y")) - 14;
+					//Create the tooltip label
+						svg.append("text")
+					   	.attr("id", "tooltip")
+					   	.attr("x", xPosition)
+					   	.attr("y", yPosition)
+					   	.attr("text-anchor", "middle")
+					   	.attr("font-family", "sans-serif")
+					   	.attr("font-size", "11px")
+					   	.attr("font-weight", "bold")
+					   	.attr("fill", "black")
+					   	.text(minToHour(d[1]) + ", " + formatYear(d[0]) );
+
+			   		})
+			  		.on("mouseout", function() {			   
+					//Remove the tooltip
+						d3.select("#tooltip").remove();
+			  		});
+
+			
+				//Create X axis
+				svg.append("g")
+					.attr("class", "x axis")
+					.attr("transform", "translate(0," + (h - padding) + ")")
+					.call(xAxis);
+			
+				//Create Y axis
+				svg.append("g")
+					.attr("class", "y axis")
+					.attr("transform", "translate(" + padding + ",0)")
+					.call(yAxis);
+
+				//Connect points
+				line = d3.line()
+					.x(function(d){return xScale(d[0]);})
+					.y(function(d){return yScale(d[1]);});
+				
+				svg.append("path")
+					.datum(womenDataset) 
+					.attr("id","womenLine")
+					.attr("class","line")
+					.attr("d", line);
+				
+				svg.append("path")
+					.datum(menDataset) 
+					.attr("id","menLine")
+					.attr("class","line")
+					.attr("d", line);
+
+
+				//Toggle lines connecting the dots
+				var linesVisible = true; // default value
+
+				svg.selectAll(".line").style("opacity",function(){
+					if(linesVisible){
+						return '1';
+					}
+					else{
+						return '0';
+					}
+				});		
+				d3.select("#lines")
+				  .on("click", function(){
+				  	if(!linesVisible){
+				  		svg.selectAll(".line").style("opacity",1);		
+						linesVisible = true;
+				  	}
+				  	else{
+				  		svg.selectAll(".line").style("opacity",0);		
+						linesVisible = false;
+				  	}
+				  })	
+
+
+				// X axis label  	
+				svg.append("text")
+					.attr("x", (w/ 2))
+					.attr("y", h)
+					.attr("class", "text-label")
+					.attr("text-anchor", "middle")
+					.text("Year");
+				// Y axis label	
+				svg.append("text")
+      				.attr("transform", "rotate(-90)")
+      				.attr("y", -5)
+      				.attr("x",0 - (h / 2) + 3)
+      				.attr("dy", "1em")
+      				.style("text-anchor", "middle")
+      				.text("Finish time(min)");
+      			// Chart name
+      			svg.append("text")
+					.attr("x", (w/ 2)-10)
+					.attr("y", 20)
+					.attr("class", "text-label")
+					.attr("text-anchor", "middle")
+					.text("Boston marathon winning times for men and women")
+					.attr("font-weight","bold");
+
+
+				// Straight line fit - values of slope and intersect calculated outside d3
+				// Values m and b come before the method	
+				//y=mx+b
+
+				var trendlineMen = svg.selectAll(".trendlineMen")
+					.data(menDataset);
+			
+				var minYearMEN = d3.min(menDataset, function(d){ return d[0]; }); //date
+				var maxYearMEN = d3.max(menDataset, function(d){ return d[0]; }); //date
+
+				trendlineMen.enter()
+					.append("line")
+					.attr("class", "trendline")
+					.attr("id", "menTrendLine")
+					.attr("x1", xScale(minYearMEN))
+					.attr("y1", yScale(getY(formatYear(minYearMEN), "m")))
+					.attr("x2", xScale(maxYearMEN))
+					.attr("y2", yScale(getY(formatYear(maxYearMEN), "m")))
+					.attr("stroke", "red")
+					.attr("stroke-width", 1);
+
+				var trendlineWomen = svg.selectAll(".trendlineWomen")
+					.data(womenDataset);
+				var minYearWOMEN = d3.min(womenDataset, function(d){ return d[0]; }); //date
+				var maxYearWOMEN = d3.max(womenDataset, function(d){ return d[0]; }); //date
+
+				trendlineWomen.enter()
+					.append("line")
+					.attr("class", "trendline")
+					.attr("id", "womenTrendLine")
+					.attr("x1", xScale(minYearWOMEN))
+					.attr("y1", yScale(getY(formatYear(minYearWOMEN), "f")))
+					.attr("x2", xScale(maxYearWOMEN))
+					.attr("y2", yScale(getY(formatYear(maxYearWOMEN), "f")))
+					.attr("stroke", "darkgreen")
+					.attr("stroke-width", 1);
+			
+			}
+			
+
+			//add updating plot to desired dataset to the paragraph
+			var addUpdatePlot = function(desiredDataset, elementToBind){
+				//On click, update with new data			
+				d3.select(elementToBind)
+				.on("click", function() {
+	
+					//Update scale domains
+					xScale.domain([
+						d3.min(desiredDataset, function(d) { return d[0]; }), d3.max(desiredDataset, function(d) { return d[0]; })
+						]);
+					yScale.domain([
+						d3.min(desiredDataset, function(d) { return d[1]; }), d3.max(desiredDataset, function(d) { return d[1]; })
+						]);
+					//Update values of axes
+					svg.select(".x.axis")
+						.transition()
+						.duration(1000)
+						.call(xAxis);
+					svg.select(".y.axis")
+						.transition()
+						.duration(1000)
+						.call(yAxis);
+					
+					//UPDATE THE PATHS
+					
+					var menLine = svg.select("#menLine");
+					var womenLine = svg.select("#womenLine");
+
+					if(elementToBind === "#men"){		  // update men path, get rid of women one
+						
+						menLine.datum(desiredDataset).attr("d", function(d){return line(d)});
+						menLine.append("path")
+							   .attr("d",function(d){return line(d)});
+						menLine.exit().remove();
+
+						womenLine.attr("d", function(d){return line(0)});
+
+					}
+					else if(elementToBind === "#women"){  // update women path, get rid of men one
+						
+						womenLine.datum(desiredDataset).attr("d", function(d){return line(d)});
+						womenLine.append("path")
+							   .attr("d",function(d){return line(d)});
+						womenLine.exit().remove();
+
+						menLine.attr("d", function(d){return line(0)});
+					
+					}
+					else{								  // update both paths
+					
+						menLine.attr("d", function(d){return line(d)});
+						menLine.append("path")
+							   .attr("d",function(d){return line(d)});
+						menLine.exit().remove();
+
+						womenLine.attr("d", function(d){return line(d)});
+						womenLine.append("path")
+							   .attr("d",function(d){return line(d)});
+						womenLine.exit().remove();
+					}
+				
+					
+					//Update all symbols
+					var selection = svg.selectAll("#point")
+					   .data(desiredDataset);
+					   
+					   
+					   selection.transition()
+   					   .duration(750)
+					   .text(function(d){
+					   		if (d[2] === "m"){
+								return "◇";
+							}
+						   else if (d[2] === "f"){
+								return "○";
+							}
+							else{
+								return "N/A";
+							}
+					   })
+					   .attr("x", function(d) {
+					   		return xScale(d[0]);
+					   })
+					   .attr("y", function(d) {
+					   		return yScale(d[1]);
+					   })
+						.attr("fill","black");
+						 
+						selection.enter()
+						.append("text")
+						.attr("id", "point")
+						.attr("x", w-10)
+						.transition()
+						.duration(750)
+						.attr("x", function(d) {
+						return xScale(d[0]);
+						})
+						.attr("y", function(d) {
+						return yScale(d[1]);
+						})
+						.text(function(d){
+					   		if (d[2] === "m"){
+								return "◇";
+							}
+						   else if (d[2] === "f"){
+								return "○";
+							}
+							else{
+								return "N/A";
+							}
+					   })
+						.attr("fill", "black");
+						
+						// remove old dataset from the plot 
+						selection
+					   .exit()
+					   .transition()
+					   .duration(750)
+					   .attr("x", w) // slowly slide to the right side of the svg and then disappear
+					   .remove();
+
+						// update tooltips					   
+					   d3.selectAll("#point").on("mouseover", function(d) {
+					   	var xPosition = parseFloat(d3.select(this).attr("x")); 
+					   	var yPosition = parseFloat(d3.select(this).attr("y")) - 14;
+
+					   	svg.append("text")
+					      	.attr("id", "tooltip")
+					      	.attr("x", xPosition)
+					      	.attr("y", yPosition)
+					      	.attr("text-anchor", "middle")
+					      	.attr("font-family", "sans-serif")
+					      	.attr("font-size", "11px")
+					      	.attr("font-weight", "bold")
+					      	.attr("fill", "black")
+					      	.text(minToHour(d[1]) + ",\r\n " + formatYear(d[0]) );
+
+			   		   	})
+			  		    .on("mouseout", function() {
+						   d3.select("#tooltip").remove();
+					
+			  		 	});
+
+
+			  		    // update line fit
+			  		    
+						var minYearMEN = d3.min(menDataset, function(d){ return d[0]; }); //date
+						var maxYearMEN = d3.max(menDataset, function(d){ return d[0]; }); //date
+						var minYearWOMEN = d3.min(womenDataset, function(d){ return d[0]; }); //date
+						var maxYearWOMEN = d3.max(womenDataset, function(d){ return d[0]; }); //date
+
+			  		    var menTrendLine = svg.selectAll("#menTrendLine");
+			  		    var womenTrendLine = svg.selectAll("#womenTrendLine");
+
+			  		    if(elementToBind === "#men"){		  // update men trend, get rid of women one
+						
+						svg.selectAll("#menTrendLine").style("opacity",1);
+						svg.selectAll("#womenTrendLine").style("opacity",0);
+						menTrendLine.data(desiredDataset)
+						.attr("x1", xScale(minYearMEN))
+						.attr("y1", yScale(getY(formatYear(minYearMEN), "m")))
+						.attr("x2", xScale(maxYearMEN))
+						.attr("y2", yScale(getY(formatYear(maxYearMEN), "m")))
+					}
+					else if(elementToBind === "#women"){  // update women trend, get rid of men one
+						svg.selectAll("#womenTrendLine").style("opacity",1);
+						svg.selectAll("#menTrendLine").style("opacity",0);
+						
+						womenTrendLine.data(desiredDataset)
+						.attr("x1", xScale(minYearWOMEN))
+						.attr("y1", yScale(getY(formatYear(minYearWOMEN), "f")))
+						.attr("x2", xScale(maxYearWOMEN))
+						.attr("y2", yScale(getY(formatYear(maxYearWOMEN), "f")))
+					}
+					else{								  						// update both trendlines
+						svg.selectAll("#menTrendLine").style("opacity",1);
+						svg.selectAll("#womenTrendLine").style("opacity",1);
+						womenTrendLine.data(desiredDataset)
+						.attr("x1", xScale(minYearWOMEN))
+						.attr("y1", yScale(getY(formatYear(minYearWOMEN), "f")))
+						.attr("x2", xScale(maxYearWOMEN))
+						.attr("y2", yScale(getY(formatYear(maxYearWOMEN), "f")))
+						menTrendLine.data(desiredDataset)
+						.attr("x1", xScale(minYearMEN))
+						.attr("y1", yScale(getY(formatYear(minYearMEN), "m")))
+						.attr("x2", xScale(maxYearMEN))
+						.attr("y2", yScale(getY(formatYear(maxYearMEN), "m")))
+						
+						
+					}
+				});
+			}
+			
+
+		</script>
+	</body>
+</html>

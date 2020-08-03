@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">    
+    <head>        
+        <meta charset="utf-8">        
+        <title>Incidents Responded to by Fire Companies</title>        
+        <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <script type="text/javascript" src="d3/d3.js"></script> 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.0.1/spin.min.js'></script> 
+        <link rel="stylesheet" href="css/style.css">
+    </head>    
+    <body style="text-align:center">  
+    
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse " >
+   <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <div class="tabbable">
+            <ul id="tabsContainer" class="nav nav-pills">
+                
+                <li id="lsection0" class="active">
+                    <a onclick="changesection(0)" style="cursor:pointer">INTRODUCTION</a>
+                </li>
+                <li id="lsection1">
+                    <a onclick="changesection(1)" style="cursor:pointer">INCIDENTS PER YEAR</a>
+                </li>
+                <li id="lsection2">
+                    <a onclick="changesection(2)" style="cursor:pointer">TYPES OF INCIDENTS</a>
+                </li>
+                <li id="lsection3"><a onclick="changesection(3)" style="cursor:pointer">SEVERITY</a></li>
+            </ul>
+            </div>
+        </div>
+    </div>
+    </nav>
+
+    <div id="container">
+        <div id="section0" >
+        <div id="visualizations0"> 
+            <div id = "graphics0">
+                <div id="maprest0">
+                   <div id="mapandtime0">
+                    <div id="mapgraph5" class="centergraphs">
+                        <img src="img/map1.png"/>
+                    </div>
+                   </div>
+            </div>
+        </div>
+        
+        </div>
+        <div id="textinfo0" style="     display: inline-block;   width: 500px;margin-left: -300px;margin-top: 120px;"> 
+            <div class="box-content"> 
+            <div id="titleStory0"><h4>Incidents Handled by Fire Department of New York City</h4></div>
+            <div id="story0"> New York is a large city with lots of things happenning every single day. Some of these things are incidents. Normally, incidents are recorded to help understand causes and prevent future incidents.<br><br>In this project
+            we have made an attempt at visualizing the incident data gathered by the Fire Department of New York City. This data includes
+            not only fires, but also many other types of incidents, such as gas leaks, explosions, elevator stalls, and more.<br><br> Different data stats, such as number of incidents, their types, and severity are displayed on the city map and available for exploration in the corresponding tabs.</div>
+            </div>
+        </div>
+    </div>
+        
+       <div id="section1" style="display:none">
+        <div id="visualizations"> 
+            <div id = "graphics">
+                <div id="listyear">
+                    <ul>
+                    <li><a id="l2013" class="listyears selected" onclick="changetimeline('2013')">2013</a></li>
+                    <li><a id="l2014" class="listyears" onclick="changetimeline('2014')">2014</a></li>
+                    <li><a id="l2015" class="listyears" onclick="changetimeline('2015')">2015</a></li>
+                    <li><a id="l2016" class="listyears" onclick="changetimeline('2016')">2016</a></li>
+                    <li><a id="l2017" class="listyears" onclick="changetimeline('2017')">2017</a></li>
+                    </ul>
+                </div>
+                <div id="maprest">
+                   <div id="mapandtime">
+                    <div id="mapgraph" class="centergraphs">
+                        
+                    </div>    
+                    <div id = "timeline" class="centergraphs2 ">
+                    
+                    </div>
+                   </div>
+                </div>
+            </div>
+        </div>
+        <div id="textinfo"> 
+            <div class="box-content"> 
+            <div id="titleStory">Incidents in New York City</div>
+            <div>Manhattan and Brooklyn's boroughs contain the most affected areas. It can be noticed that the zip area colors for the year 2015 are more intense: the highest number of incidents occurred in this year. <br>Zip code area 11005 on the east of Queen's borough shows a drastic change: number of incidents went from 51 per 1000 residents in 2013 to 80 per 1000 residents in 2017.</div>
+            </div>
+            <div class="box-content2"> 
+            <div id="listofvalueshm" style="display:none">
+                <h5 style="margin-bottom: 20px;text-align:left">Incidents per 1000 residents</h5>
+                <div id="hm_firstvalue" class="hm_legends">
+                    <div class="progress" style="width: 20px;float:left;">
+                        <div id="hm_color1"  class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>        
+                <h4 class="progress-label" id="hm_legend1" style="width: 50%;">Number</h4>
+                </div>
+                <div id="hm_firstvalue2" class="hm_legends" style="clear:both">
+                    <div class="progress" style="width: 20px;float:left;">
+                        <div id="hm_color2" class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>    
+                    <h4 class="progress-label" id="hm_legend2"  style="width: 50%;">Number</h4>
+                </div>
+                <div id="hm_firstvalue3" class="hm_legends" style="clear:both">
+                    <div class="progress" style="width: 20px;float:left;">
+                        <div id="hm_color3" class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>  
+                    <h4 class="progress-label" id="hm_legend3"  style="width: 50%;">Number</h4>
+                </div>
+                <div id="hm_firstvalue4" class="hm_legends" style="clear:both">
+                    <div class="progress" style="width: 20px;float:left;">
+                        <div id="hm_color4" class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div> 
+                    <h4 class="progress-label" id="hm_legend4"  style="width: 50%;">Number</h4>
+                </div>
+            </div>
+            </div>
+            <div class="box-content" style="margin-top: 40px;"> 
+            <div id="titleStory"></div>
+            <div><i>(Brush timeline to update brightness of map corresponding to dates)</i><br>
+            - 2013: July shows the highest number of incidents and September displays fewer number of incidents for non-central areas.<br>
+            - 2014 - 2015 - 2016: shows that January and February had the highest number of incidents. <br>
+            - 2017: Number of incidents per month remains between the same range of 1000 - 1500 during the whole year </div>
+            </div>
+        </div>
+      </div>
+      <div id="section2" style="display:none">
+        <div id="visualizations2"> 
+        <div id = "graphics2">
+            <div id="listyear2">
+                <ul>
+                <li><a id="l2013" class="listyears selected" onclick="displayOneTypeData(0,'2013')">2013</a></li>
+                <li><a id="l2014" class="listyears" onclick="displayOneTypeData(0,'2014')">2014</a></li>
+                <li><a id="l2015" class="listyears" onclick="displayOneTypeData(0,'2015')">2015</a></li>
+                <li><a id="l2016" class="listyears" onclick="displayOneTypeData(0,'2016')">2016</a></li>
+                <li><a id="l2017" class="listyears" onclick="displayOneTypeData(0,'2017')">2017</a></li>
+                </ul>
+            </div>
+            <div id="maprest2">
+               <div id="mapandtime2">
+                <div id="mapgraph2" class="centergraphs">
+                    
+                </div>    
+                <div id = "timeline2" class="centergraphs2">
+                
+                </div>
+               </div>
+               <div id="incidenttypes2">
+               <div class="box-content" style="height: 540px;"> 
+                <div id="titleStory2">Type of incidents</div>
+                <div style="margin-top: 5px;">Displaying the number of incidents of specific type provides an insight into distribution of such incident type. It can be seen how rare an area is for the selected type of incident compared to all other zip areas.</div>
+                <hr style="margin-top: 5px; margin-bottom: 5px;">
+                <div id="selectedtype" class="alert alert-info" data-value="300" style="padding-top:5px; padding-bottom: 5px; margin-top: 10px; margin-bottom:5px;">Rescue, EMS incident, other</div>
+                <div>Select type:</div>
+                 <div id="incidentslist" class="list-group">
+                </div>
+                </div>
+                <div class="box-content2"> 
+                    <div id="listofvaluestoi">
+                        <h5 style="margin-bottom: 20px;text-align:left">Number of incidents</h5>
+                        <div id="toi_firstvalue" class="hm_legends">
+                            <div class="progress" style="width: 20px;float:left;">
+                                <div id="toi_color1"  class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>        
+                        <h4 class="progress-label" id="toi_legend1" style="width: 50%;">Number</h4>
+                        </div>
+                        <div id="toi_firstvalue2" class="hm_legends" style="clear:both">
+                            <div class="progress" style="width: 20px;float:left;">
+                                <div id="toi_color2" class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>    
+                            <h4 class="progress-label" id="toi_legend2"  style="width: 50%;">1</h4>
+                        </div>
+                        <div id="toi_firstvalue3" class="hm_legends" style="clear:both">
+                            <div class="progress" style="width: 20px;float:left;">
+                                <div id="toi_color3" class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>  
+                            <h4 class="progress-label" id="toi_legend3"  style="width: 50%;">N/A - no data</h4>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <!-- <div id="textinfo2"> 
+            <div class="box-content"> 
+            <div id="titleStory2">Example of 2222</div>
+            <div>ELorem ipsum dolor sit amet, consectetur adipiscing elit. In sit amet libero nisi. Nunc pharetra vitae eros quis faucibus. Cras mollis finibus enim vitae tincidunt. Cras tempor ultrices ipsum, sit amet varius odio convallis ut. Duis pellentesque nisi dui, et vehicula eros bibendum sed. Nullam ut tortor sem. Nunc tempor placerat nulla sit amet euismod. Ut varius ut erat eu posuere. Ut eget consequat diam. Quisque sem orci, consectetur a efficitur ut, congue vel libero. Donec ut venenatis augue.</div>
+            </div>
+        </div> -->
+      </div>
+      <div id="section3" style="display:none">
+        
+        <div id="visualizations3"> 
+            <div id = "graphics3">
+            	<div id="listyear3">
+                    <ul>
+                    <li><a id="lsev2013" class="listyears selected" onclick="changeseverity('2013')">2013</a></li>
+                    <li><a id="lsev2014" class="listyears" onclick="changeseverity('2014')">2014</a></li>
+                    <li><a id="lsev2015" class="listyears" onclick="changeseverity('2015')">2015</a></li>
+                    <li><a id="lsev2016" class="listyears" onclick="changeseverity('2016')">2016</a></li>
+                    <li><a id="lsev2017" class="listyears" onclick="changeseverity('2017')">2017</a></li>
+                    </ul>
+                </div>
+                <div id="maprest3">
+                   <div id="mapandtime3">
+                    <div id="mapgraph3" class="centergraphs">
+                        
+                    </div>    
+                    <div id = "buttonplace">
+                        <button class = "button button1 btn btn-danger" id = "buttonsevere" disabled=true onclick="showMostSevere()">Highlight some of the most severe incidents</button>
+                    </div>
+                   </div>
+                </div>
+            </div>
+        </div>
+        <div id="textinfo3"> 
+            <div class="box-content"> 
+            <div id="titleStory3">Severity of incidents</div>
+            <div id="story3"> In order to quantify where the most severe incidents occur, maximum number of firefighter units having to deal with one incident is displayed in the map. It can be observed that the distribution of severity of incidents is not as clear 
+            as the total number of incidents. <br> With the help of the button below the map it is possible to highlight the most severe incidents across the entire dataset. </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    
+    <div style="position: relative;;clear:both">    
+        <div style="position: absolute;    right: 0; ">
+            <a href="explainer.html" style="color: #29b6f6;margin: 0px 15px;cursor:pointer">Go to Explainer page</a><br>
+            <a href="https://data.cityofnewyork.us/Public-Safety/Incidents-Responded-to-by-Fire-Companies/tm6d-hbzd/" style="color: #29b6f6;margin: 0px 15px;cursor:pointer">Data set for incidents</a><br>
+            <a href="https://www.unitedstateszipcodes.org/zip-code-database/" style="color: #29b6f6;margin: 0px 15px;cursor:pointer">Data set for population</a><br>
+            <a  href="https://github.com/fedhere/PUI2015_EC/blob/master/mam1612_EC/nyc-zip-code-tabulation-areas-polygons.geojson" style="color: #29b6f6;margin: 0px 15px;cursor:pointer">GeoJSON</a><br>
+            <a href="https://github.com/s172181/socialDataProject2" style="color: #29b6f6;margin: 0px;margin-left: 15px;cursor:pointer">GitHub data-story page </a>
+            <a href="https://github.com/s172181/socialDataProject2/blob/master/explainer.html" style="color: #29b6f6;margin: 0px;margin-right: 15px;cursor:pointer">(explainer page)</a><br>
+            <a href="https://github.com/A21lex/A21lex.github.io" style="color: #29b6f6;margin: 0px 15px;cursor:pointer">GitHub host page</a><br>
+        </div>
+    </div>
+    
+    
+    <script type="text/javascript"> 
+    //Width and height
+    var previoussection = 0;
+    var w = 600;
+    var h = 500;     
+    var yearsection1 = "2013";
+    
+    //For section 1
+    var svg = d3.select("#mapgraph")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
+    // Define the div for the tooltip
+            var div = d3.select("body").append("div")	
+                .attr("class", "tooltip")				
+                .style("opacity", 0);
+                
+    //section 3
+    var svg3 = d3.select("#mapgraph3")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
+                
+            var div2 = d3.select("body").append("div")	
+                .attr("class", "tooltip")				
+                .style("opacity", 0);
+                    
+    function getSortedKeys(obj) {
+            var keys = []; for(var key in obj) keys.push(key);
+            return keys.sort(function(a,b){return obj[b]-obj[a]});
+        }
+    // Spinner while the data is loading
+    var opts = {
+    	lines: 9, // The number of lines to draw
+  		length: 9, // The length of each line
+  		width: 5, // The line thickness
+  		radius: 18, // The radius of the inner circle
+  		color: '#EE3624', // #rgb or #rrggbb or array of colors
+  		speed: 1.9, // Rounds per second
+  		trail: 40, // Afterglow percentage
+  		className: 'spinner', // The CSS class to assign to the spinner
+    };
+    var targetMap = document.getElementById('mapgraph');
+    var spinner = new Spinner(opts).spin(targetMap);
+    var targetTimeline = document.getElementById('timeline');
+    var spinnerTimeline = new Spinner(opts).spin(targetTimeline);
+    // Define the div for the tooltip
+            var div = d3.select("body").append("div")	
+                .attr("class", "tooltip")				
+                .style("opacity", 0);
+    //Load in GeoJSON data
+    function loaddatamap (ni_choosenYear,ni_choosenYear_op) {
+    
+        //d3.select("#mapgraph").select("svg").remove();
+        
+        //Create SVG element
+        /*var svg = d3.select("#mapgraph")
+                    .append("svg")
+                    .attr("width", w)
+                    .attr("height", h);*/
+        
+        d3.json("nyc-zip-code.json", function(json) {
+        	
+        	spinner.stop();
+            var center = d3.geoCentroid(json); // need this to center the projection correctly
+        
+            var projection = d3.geoMercator()
+                            .center(center)
+                            .scale(50000)
+                            .translate([(w) / 2, (h)/2]);
+
+            var path = d3.geoPath() //translating GeoJSON coordinates into SVG path codes
+                    .projection(projection);
+                    
+
+            //Bind data and create one path per GeoJSON feature
+            //Each one of these Features represents a ZIP code
+            //This attribute, d, contains a series of commands and parameters in the SVG Path Mini-Language.
+            var nymap = svg.selectAll("path")
+            .data(json.features)
+            .enter()
+            .append("path")
+            .attr("d", path);
+            
+            var nymap2 = svg3.selectAll("path")
+            .data(json.features)
+            .enter()
+            .append("path")
+            .attr("d", path);
+            loadinfomap(ni_choosenYear,ni_choosenYear_op);
+
+        });
+    }
+    
+    function sortProperties(obj) {
+            var sortable=[];
+            for(var key in obj)
+                    if(obj.hasOwnProperty(key))
+                            sortable.push([key, obj[key]]); 
+            
+            // sort items by value
+            sortable.sort(function(a, b)
+            {
+            return b[1]-a[1]; 
+            });
+            return sortable; 
+    }
+        
+    function loadinfomap(ni_choosenYear,ni_choosenYear_op) {
+    
+        
+    
+        var nymap = svg.selectAll("path")
+        .style("fill", function(d) {
+                //Get data value
+                var value = d.properties.postalCode;
+                
+                if (typeof ni_choosenYear[value.toString()] === "undefined" || ni_choosenYear[value.toString()]==-1)
+                    return "000000";
+                return "#EF6C00";
+            })
+            .style("opacity",function(d) {
+                //Get data value
+                var value = d.properties.postalCode;
+                if (typeof ni_choosenYear[value.toString()] === "undefined" || ni_choosenYear[value.toString()]==-1)
+                    return 0.09;
+                return ni_choosenYear_op[value.toString()];
+            })
+            .on("mouseover", function(d) {		
+                div.transition()		
+                    .duration(200)		
+                    .style("opacity", .9);
+                //Here we add what we what to put on the tip
+                var value = d.properties.postalCode;
+                var nIncPer = 0;
+                if (typeof ni_choosenYear[value.toString()] === "undefined" || ni_choosenYear[value.toString()]==-1)
+                    nIncPer = "N/A";
+                else 
+                    nIncPer = ni_choosenYear[value.toString()];
+                div.html("<h5>Zip code</h5>"+d.properties.postalCode+"<br>"+"<h5>No. of incidents</h5>"
+                            +nIncPer+"<br>Per 1000 residents")	
+                    .style("left", (d3.event.pageX) + "px")		
+                    .style("top", (d3.event.pageY - 28) + "px");	
+            // this.style("fill", "#909090");
+                var currentState = this;
+                d3.select(this).style('fill', "#e1e1e1");
+                d3.select(this).style('stroke', "#333333");
+                d3.select(this).style('stroke-opacity',  "1");
+                })            
+            .on("mouseout", function(d) {		
+                div.transition()			
+                    .style("opacity", 0);	
+                var currentState = this;
+                var value = d.properties.postalCode;
+                d3.select(this).style('stroke', "none");
+                if (typeof ni_choosenYear[value.toString()] === "undefined" || ni_choosenYear[value.toString()]==-1) {                
+                    d3.select(this).style('opacity',  0.09);
+                    d3.select(this).style('fill', "#000000");
+                }
+                else {
+                    d3.select(this).style('opacity',  ni_choosenYear_op[value.toString()]);
+                    d3.select(this).style('fill', "#EF6C00");
+                }
+            });
+            
+//             //
+//             var brush2 = d3.brush()
+//                                 .on("brush", brushzipcodes)
+//                                 .on("end", changebarchar); 
+// 
+//                 svg.append("g")
+//                     .call(brush2);
+//             
+            //Change values
+            
+            $("#listofvalueshm").css("display","block");
+            var ni_choosenYear_op2=sortProperties(ni_choosenYear_op);
+            $("#hm_color1").css("background-color","#EF6C00");
+            $("#hm_color1").css("opacity",ni_choosenYear_op2[0][1]);
+            $("#hm_legend1").text(ni_choosenYear[ni_choosenYear_op2[0][0].toString()]);
+            
+            $("#hm_color2").css("background-color","#EF6C00");
+            $("#hm_color2").css("opacity",ni_choosenYear_op2[40][1]);
+            $("#hm_legend2").text(ni_choosenYear[ni_choosenYear_op2[40][0].toString()]);
+            
+            $("#hm_color3").css("background-color","#EF6C00");
+            $("#hm_color3").css("opacity",ni_choosenYear_op2[80][1]);
+            $("#hm_legend3").text(ni_choosenYear[ni_choosenYear_op2[80][0].toString()]);
+            
+            $("#hm_color4").css("background-color","#EF6C00");
+            $("#hm_color4").css("opacity",ni_choosenYear_op2[120][1]);
+            $("#hm_legend4").text(ni_choosenYear[ni_choosenYear_op2[120][0].toString()]);
+            
+            /*$("hm_color1").style("background-color","#EF6C00");
+            $("hm_color1").style("opacity",ni_choosenYear_op2[0]);*/
+        
+    }
+    
+    function brushzipcodes() {
+    
+    }
+    
+    function changebarchar() {
+    
+    }
+     
+     var formatTime = d3.timeFormat("%m");
+     /*
+     *This function creates the timeline
+     */
+     function painttimeline(incidentsMonthYear2,mindate,maxdate,incidentsMonthYear_zip2) {
+       spinnerTimeline.stop();
+        var width = 600;
+        var height = 200;
+        var padding = 50;
+        xScale = d3.scaleTime()
+               .domain([
+                    mindate,
+                    maxdate
+                ])
+               .range([padding, width]);
+               
+        var yScale = d3.scaleLinear()
+        .domain([0, d3.max(incidentsMonthYear2, function(d) { return d.value; })])
+        .range([height - padding, padding]);
+        //Define axes
+        xAxis = d3.axisBottom()
+                .scale(xScale)
+                .ticks(12)
+                .tickFormat(formatTime);
+                
+        //Define Y axis
+        yAxis = d3.axisLeft()
+                .scale(yScale)
+                .ticks(4)
+                .tickSizeOuter(0);
+                
+        //Define line generator
+        var line = d3.line()
+            .x(function(d) { return xScale(new Date(d.key)); })
+            .y(function(d) { return yScale(d.value); });
+            
+        d3.select("#timeline").select("svg").remove();
+        
+        //Create SVG element
+        var svg2 = d3.select("#timeline")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+            
+        //Create line
+        var linegraph = svg2.append("path")
+        .datum(incidentsMonthYear2)
+        .attr("class", "line")
+        .attr("d", line)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue");
+        
+        //Create axes
+        svg2.append("g")
+                .attr("class", "axis")
+                .attr("transform", "translate(0," + (height - padding) + ")")
+                .call(xAxis);
+
+        svg2.append("g")
+                .attr("class", "axis")
+                .attr("transform", "translate(" + padding + ",0)")
+                .call(yAxis);
+                
+        //Define clipping path
+        svg2.append("clipPath")                  
+            .attr("id", "chart-area")           
+            .append("rect")      
+            .attr("width", width)
+            .attr("height", height-padding);
+            
+        //Label of the Y axis
+        svg2.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0)
+            .attr("x",-100)
+            .attr("dy", "1em")
+            .style("font-size", "11px")
+            .style("text-anchor", "middle")
+            .style("font-weight", "bold")
+            .text("# of Incidents");
+        // Label of the X axis
+        svg2.append("text")
+            .attr("x", width/2)
+            .attr("y", height-(padding/2))
+            .attr("dy", "1em")
+            .style("font-size", "11px")
+            .style("text-anchor", "middle")
+            .style("font-weight", "bold")
+            .text("Month");
+
+        //For brush
+        var x = d3.scaleLinear().range([0, width]),
+        x2 = d3.scaleTime().range([0, width]);
+        brush = d3.brushX()
+        .extent([[padding, padding-1], [width, height-padding]])
+        //.on('end', highlightlines)
+        .on("brush", highlightlines);
+                
+        gBrush = svg2.append("g")
+        .attr("class", "x brush")
+        .attr("clip-path", "url(#chart-area)")   //Add reference to clipPath
+        .call(brush);
+        
+        
+        gBrush2 = gBrush.selectAll("rect")
+        .attr("y", 1)
+        .attr("height", height-padding);
+     }
+     
+     /*
+    * Function to 
+    */
+    function highlightlines() {
+        if (!d3.event.selection) {loaddatamap(zipcodesAll[yearsection1],totalincAll[yearsection1]);return;} // Ignore empty selections.
+        var d0 = d3.event.selection.map(xScale.invert);
+        var aux = new Date(d0[0]); 
+        var datet = aux.getFullYear()+'/'+(aux.getMonth()+1)+'/'+aux.getDate();
+        
+        //Go through the range of dates
+        var time_incidents =  {};
+        var time_incidents_op =  {};
+        var zipaux = "";
+        minzone = 0, maxzone = 0;
+        var min=99999,max=0;
+        for (var d = d0[0]; d <= d0[1]; d.setDate(d.getDate() + 1)) {
+            var aux = new Date(d); 
+            var datet = aux.getFullYear()+'/'+(aux.getMonth()+1)+'/'+aux.getDate();
+            for (var i=0;i<incidentsMonthYear_zip[yearsection1][datet].length;i++) {
+                zipaux = incidentsMonthYear_zip[yearsection1][datet][i][0]+"";
+                if (typeof time_incidents[zipaux]  === "undefined")
+                    time_incidents[zipaux] = 0;
+                time_incidents[zipaux] +=  parseInt(incidentsMonthYear_zip[yearsection1][datet][i][1]);
+                
+            }
+        }
+        
+        //
+        var incidentsPerson = 0, incidentsPerson2=0;
+        for(var key in time_incidents) {
+                    if (typeof zipPopulation[key] === "undefined") {
+                        time_incidents[key] = -1;
+                    }
+                    else {
+                        incidentsPerson = parseInt(time_incidents[key])/zipPopulation[key];
+                        incidentsPerson2 = incidentsPerson*1000;
+                        time_incidents[key] = +incidentsPerson2.toFixed(2);
+                        if (time_incidents[key] <= min && time_incidents[key] >= 0) {
+                                min = time_incidents[key];
+                        }
+                        if (key!="99999" && time_incidents[key] > max) {
+                                max = time_incidents[key];
+                        }
+                        
+                    }
+            }
+            
+        for(var key in time_incidents) {
+                    if (typeof zipPopulation[key] === "undefined") {
+                        time_incidents[key] = -1;
+                    }
+                    else {
+                        var normalize = (time_incidents[key] - min)/(max-min);
+                        
+                        time_incidents_op[key] =  normalize*2;
+                    }
+            }
+            
+        loaddatamap(time_incidents,time_incidents_op);
+    } 
+    
+    /*
+    *Section 3
+    */
+    // Spinner while the data is loading
+    var opts2 = {
+    	lines: 9, // The number of lines to draw
+  		length: 9, // The length of each line
+  		width: 5, // The line thickness
+  		radius: 18, // The radius of the inner circle
+  		color: '#EE3624', // #rgb or #rrggbb or array of colors
+  		speed: 1.9, // Rounds per second
+  		trail: 40, // Afterglow percentage
+  		className: 'spinner', // The CSS class to assign to the spinner
+    };
+    var targetMap2 = document.getElementById('mapgraph3');
+    var spinner2 = new Spinner(opts2).spin(targetMap2);
+    var nymap;
+    
+    // For links of the most severe incidents
+    function openInNewTab(url){
+        var win = window.open(url, '_blank');
+        win.focus();
+    }
+    var severeAreShown = false;
+    function showMostSevere(){
+        if (severeAreShown) {
+                severeAreShown = false;
+                hideMostSevere();
+                return;
+        }
+        svg3.selectAll("path")
+            .style("fill", function(d){
+                var value = d.properties.postalCode;
+                var zipCodeHighlighted = false;
+                var hasurl = false;
+                for(var i = 0; i<severestdata.length; i++){
+                    if (value == severestdata[i].ZIP_CODE) {
+                            zipCodeHighlighted = true;
+                            if (severestdata[i].URL) {
+                            	hasurl = true;
+                            }
+                            
+                    }
+                }
+                /*if (zipCodeHighlighted && hasurl) {
+                	return "#830303";
+                }
+                else */
+                if (zipCodeHighlighted){
+                	return "#800000";
+                }
+                else {
+                	return "EF6C00";
+                }
+                //return zipCodeHighlighted ? "#830303" : "#EF6C00";
+            })
+            .style("opacity", function(d){
+                    //Get data value
+                            //var state = this;
+                            //d3.select(this).style('stroke', "#333333");
+                var value = d.properties.postalCode;
+                var units;
+                try{
+                    units = maxunitsdata.find(ab=>ab.key === value.toString()).value;
+                    }
+                    catch (e){
+                            //zipcode is not in maxunitsdata - set units to 0 to have white colored zone
+                            units = 0;
+                    }
+                var zipCodeHighlighted = false;
+                var maxUnitsEver;
+                for(var i = 0; i<severestdata.length; i++){
+                    if (value == severestdata[i].ZIP_CODE) {
+                            zipCodeHighlighted = true;
+                            maxUnitsEver = severestdata[i].UNITS_ONSCENE;
+                            
+                    }
+                }
+                return zipCodeHighlighted ? 1 : (units/25000)*120;
+            })
+            .on("click", function(d){
+                    var value = d.properties.postalCode;
+                    var zipCodeHighlighted = false;
+                var url;
+                for(var i = 0; i<severestdata.length; i++){
+                    if (value == severestdata[i].ZIP_CODE) {
+                            zipCodeHighlighted = true;
+                            url = severestdata[i].URL;
+                                    
+                    }
+                }
+                if (url) {
+                    openInNewTab(url);
+                }
+                
+
+
+            })
+            .on("mouseover", function(d) {		
+                div.transition()		
+                    .duration(200)		
+                    .style("opacity", .9);
+                //Here we add what we what to put on the tip
+                var value = d.properties.postalCode;
+                var units;
+                try{
+                units = maxunitsdata.find(ab=>ab.key === value.toString()).value;
+                    }
+                    catch (e){
+                            //zipcode is not in maxunitsdata - it's fine, just go on
+                    }
+                div	.html("<h5>Zip code</h5>"+d.properties.postalCode+"<br>"+"<h5>Max. num. of firefighter units involved</h5>"
+                            +units)	
+                    .style("left", (d3.event.pageX) + "px")		
+                    .style("top", (d3.event.pageY - 28) + "px");	
+            var zipCodeHighlighted = false;
+            var maxUnitsEver;
+            var date; // date of incident for severest only
+            for(var i = 0; i < severestdata.length; i++){
+                if (value == severestdata[i].ZIP_CODE) {
+
+                    zipCodeHighlighted = true;
+                    maxUnitsEver = severestdata[i].UNITS_ONSCENE;
+                    date = dateToString(severestdata[i].INCIDENT_DATE_TIME);
+                    div	.html("<h5>Zip code</h5>"+d.properties.postalCode+"<br>"+"<h5>Firefighter units involved</h5>"
+                            +maxUnitsEver+"<br>"+"<h5>Date of incident</h5>"+date + "<br>" + "<h5><i>(Click to see the news article)</i></h5>")	
+                    .style("left", (d3.event.pageX) + "px")		
+                    .style("top", (d3.event.pageY - 28) + "px");
+                    if (severestdata[i].URL) {
+                            d3.select(this).style('cursor', "pointer"); // make cursor pointer - it should be clickable in this case
+                    }
+                    else{
+                    	d3.select(this).style('cursor', "default");
+                    }
+                
+
+                }
+                }
+                    
+                var currentState = this;
+                d3.select(this).style('fill', "#e1e1e1");
+                d3.select(this).style('stroke', "#333333");
+                d3.select(this).style('stroke-opacity',  "1");
+                })            
+            .on("mouseout", function(d) {		
+                div.transition()		// I have uncommented these lines as tooltips did not otherwise disappear...
+                    .duration(350)		
+                    .style("opacity", 0);	
+                var currentState = this;
+                var value = d.properties.postalCode;
+                var units;
+                try{
+                units = maxunitsdata.find(ab=>ab.key === value.toString()).value;
+                    }
+                    catch (e){
+                            //zipcode is not in maxunitsdata - set units to 0 to have white colored zone
+                            units = 0;
+                    }
+                    var zipCodeHighlighted = false;
+                for(var i = 0; i<severestdata.length; i++){
+                if (value == severestdata[i].ZIP_CODE) {
+                    zipCodeHighlighted = true;
+                }
+                }
+                d3.select(this).style('stroke', "none");
+                d3.select(this).style('opacity',  function(d){
+                    return zipCodeHighlighted ? 1 : (units/25000)*120;
+                });
+
+                d3.select(this).style('fill', function(d){
+                    return zipCodeHighlighted ? "#800000" : "#EF6C00";
+                });
+            });
+        severeAreShown = true;
+        var severebutton = document.getElementById("buttonsevere");
+        var severetext = document.getElementById("story3");
+        severebutton.innerHTML = "Back to all incidents"; // change text of the button
+        severetext.innerHTML = "Some of the most severe incidents across the entire dataset are now highlighted with dark red colors, while the rest of the map has been dimmed. Here the distribution is more clear, with the most severe incidents having occured in Western Queens and Upper, Lower and Midtown Manhattan. <br> It is possible to click on the highlighted regions in order to visit a link with the news story covering the particular incident."; // change text of the description 
+    }
+
+    function hideMostSevere(){
+                svg3.selectAll("path")
+                .style("fill", "#EF6C00")
+        .style("opacity",function(d) {
+            //Get data value
+            var value = d.properties.postalCode;
+            try{
+                var units = maxunitsdata.find(ab=>ab.key === value.toString()).value;
+                }
+                catch (e){
+                        //zipcode is not in the maxunitsdata for the currently selected dataset
+                        //so no info available, set units to 0 to have white colored zone
+                        units = 0;
+                }
+            return (units/10000)*120;
+        })
+        .on("click", function(d){
+                // nothing
+        })
+        .on("mouseover", function(d) {
+            d3.select(this).style('cursor', "default"); // make cursor default again
+            div.transition()		
+                .duration(200)		
+                .style("opacity", .9);
+            //Here we add what we what to put on the tip
+            var value = d.properties.postalCode;
+            var units;
+            try{
+            units = maxunitsdata.find(ab=>ab.key === value.toString()).value;
+                }
+                catch (e){
+                        //zipcode is not in maxunitsdata - it's fine, just go on
+                }
+            div	.html("<h5>Zip code</h5>"+d.properties.postalCode+"<br>"+"<h5>Max. num. of firefighter units involved</h5>"
+                        +units)	
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+        // this.style("fill", "#909090");
+            var currentState = this;
+            d3.select(this).style('fill', "#e1e1e1");
+            d3.select(this).style('stroke', "#333333");
+            d3.select(this).style('stroke-opacity',  "1");
+            })            
+        .on("mouseout", function(d) {		
+            div.transition()		// I have uncommented these lines as tooltips did not otherwise disappear...
+                .duration(350)		
+                .style("opacity", 0);	
+            var currentState = this;
+            var value = d.properties.postalCode;
+            var units;
+            try{
+            units = maxunitsdata.find(ab=>ab.key === value.toString()).value;
+                }
+                catch (e){
+                        //zipcode is not in maxunitsdata - set units to 0 to have white colored zone
+                        units = 0;
+                }
+            d3.select(this).style('stroke', "none");
+            d3.select(this).style('opacity',  (units/10000)*120);
+            d3.select(this).style('fill', "#EF6C00");
+        });
+        var severebutton = document.getElementById("buttonsevere");
+        severebutton.innerHTML = "Highlight some of the most severe incidents"; // change text of the button
+        var severetext = document.getElementById("story3");
+        severetext.innerHTML = "In order to quantify where the most severe incidents occur, maximum number of firefighter units having to deal with an incident is displayed in the map. It can be observed that the distribution of severity of incidents is not as clear as the total number of incidents. <br> With the help of the button below the map it is possible to highlight the most severe incidents across the entire dataset."; // change text of the description 
+    }
+    
+    //Load in GeoJSON data
+    function loadinfomap3 () {
+        //spinner2.stop();
+        var buttonsevere = document.getElementById("buttonsevere");
+    	buttonsevere.disabled = false; // finished loading data, enable the button        
+        buttonsevere.innerHTML = "Highlight some of the most severe incidents"; // change text of the button
+        severeAreShown = false; // when switching years, do not show severe stuffs
+        hideMostSevere();
+        var nymap = svg3.selectAll("path")
+        .style("fill", "#EF6C00")
+           .style("opacity",function(d) {
+               //Get data value
+               var value = d.properties.postalCode;
+               try{
+                 var units = maxunitsdata.find(ab=>ab.key === value.toString()).value;
+           	   }
+           	   catch (e){
+           	   	//zipcode is not in the maxunitsdata for the currently selected dataset
+           	   	//so no info available, set units to 0 to have white colored zone
+           	   	units = 0;
+           	   }
+               return (units/10000)*120;
+           })
+        .on("mouseover", function(d) {		
+            div.transition()		
+                .duration(200)		
+                .style("opacity", .9);
+            //Here we add what we what to put on the tip
+            var value = d.properties.postalCode;
+            var units;
+            try{
+              units = maxunitsdata.find(ab=>ab.key === value.toString()).value;
+        	}
+        	catch (e){
+        		//zipcode is not in maxunitsdata - it's fine, just go on
+        	}
+            div	.html("<h5>Zip code</h5>"+d.properties.postalCode+"<br>"+"<h5>Max. num. of firefighter units involved</h5>"
+                        +units)	
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+           // this.style("fill", "#909090");
+            var currentState = this;
+            d3.select(this).style('cursor', "default");
+            d3.select(this).style('fill', "#e1e1e1");
+            d3.select(this).style('stroke', "#333333");
+            d3.select(this).style('stroke-opacity',  "1");
+            })            
+        .on("mouseout", function(d) {		
+            div.transition()		// I have uncommented these lines as tooltips did not otherwise disappear...
+                .duration(350)		
+                .style("opacity", 0);	
+            var currentState = this;
+            var value = d.properties.postalCode;
+            var units;
+            try{
+              units = maxunitsdata.find(ab=>ab.key === value.toString()).value;
+        	}
+        	catch (e){
+        		//zipcode is not in maxunitsdata - set units to 0 to have white colored zone
+        		units = 0;
+        	}
+            d3.select(this).style('stroke', "none");
+            d3.select(this).style('opacity',  (units/10000)*120);
+            d3.select(this).style('fill', "#EF6C00");
+        });
+    }
+     
+     
+     function changesection(section) {
+        if (previoussection==section) return;
+        if (previoussection==0) {
+            d3.select("#mapgraph").select("svg").remove();
+            d3.select("#timeline").select("svg").remove();
+        }
+        if (previoussection==1) {
+            d3.select("#mapgraph").select("svg").remove();
+            d3.select("#timeline").select("svg").remove();
+        }
+        if (previoussection!=1 && section==1) {
+            svg = d3.select("#mapgraph")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
+            changetimeline("2013");
+            loaddatamap(zipcodesAll["2013"],totalincAll["2013"]);
+            painttimeline(incidentsMonthYear["2013"],mindate["2013"],maxdate["2013"]);
+        }
+        $("#section"+previoussection).css("display","none");
+        $("#section"+section).css("display","block");
+        $("#lsection"+previoussection).removeClass("active");
+        $("#lsection"+section).addClass("active");
+        previoussection = section;
+        if (section == 3) { loadinfomap3() }
+     }
+    
+    </script>
+    <script src="zipCodesIncPop.js"></script>
+    <script src="incident-type-map.js"></script>
+    </body>
+</html>
